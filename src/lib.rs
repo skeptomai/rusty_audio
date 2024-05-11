@@ -93,6 +93,7 @@ impl Audio {
         let warm = buffered.clone();
         for i in warm {
             #[allow(clippy::drop_copy)]
+            #[allow(dropping_copy_types)]
             drop(i);
         }
         self.clips.insert(name.as_ref().to_string(), buffered);
@@ -126,6 +127,22 @@ impl Audio {
                 continue;
             }
             break;
+        }
+    }
+
+    pub fn is_playing(&self) -> bool {
+        if self.disabled() {
+            return false;
+        }
+        self.channels.iter().any(|x| !x.empty())
+    }
+
+    pub fn stop(&self) {
+        if self.disabled() {
+            return;
+        }
+        for channel in &self.channels {
+            channel.stop();
         }
     }
 }
